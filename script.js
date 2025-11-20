@@ -7,16 +7,14 @@ const chartCtx = chartCanvas.getContext('2d');
 const runBtn = document.getElementById('run');
 
 runBtn.addEventListener('click', () => {
-    // 清空画布
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
 
-    // 读取滑块值
     const beta = parseFloat(document.getElementById('beta').value);
     const gamma = parseFloat(document.getElementById('gamma').value);
     const initialI = parseInt(document.getElementById('initialI').value);
 
-    const N = 50; // 总人数
+    const N = 50;
     let S = N - initialI;
     let I = initialI;
     let R = 0;
@@ -26,7 +24,7 @@ runBtn.addEventListener('click', () => {
     let I_arr = [I];
     let R_arr = [R];
 
-    // 计算 SIR 模型
+    // SIR 计算
     for (let t = 1; t < days; t++) {
         const newInfected = Math.min(beta * S * I / N, S);
         const newRecovered = Math.min(gamma * I, I);
@@ -40,59 +38,79 @@ runBtn.addEventListener('click', () => {
         R_arr.push(R);
     }
 
-    // 绘制折线图
-    chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-    drawChart(chartCtx, S_arr, I_arr, R_arr);
-
-    // 绘制动画点
-    drawAnimation(S_arr, I_arr, R_arr);
-});
-
-// 绘制折线图
-function drawChart(ctx, S_arr, I_arr, R_arr) {
-    const w = ctx.canvas.width;
-    const h = ctx.canvas.height;
-    const max = Math.max(...S_arr, ...I_arr, ...R_arr);
-
-    function plotLine(arr, color) {
-        ctx.strokeStyle = color;
-        ctx.beginPath();
-        arr.forEach((val, idx) => {
-            const x = (idx / arr.length) * w;
-            const y = h - (val / max) * h;
-            if (idx === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-    }
-
-    plotLine(S_arr, 'blue'); // S
-    plotLine(I_arr, 'red');  // I
-    plotLine(R_arr, 'green'); // R
-}
-
-// 动画点（同步）
-function drawAnimation(S_arr, I_arr, R_arr) {
-    const total = 50;
+    // 初始化点
     let points = [];
-    for (let i = 0; i < total; i++) {
+    for (let i = 0; i < N; i++) {
         points.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            status: i < I_arr[0] ? 'infected' : 'susceptible'
+            status: i < initialI ? 'infected' : 'susceptible'
         });
     }
 
+    // 绘制折线图
+    function drawChart(tIndex) {
+        const w = chartCanvas.width;
+        const h = chartCanvas.height;
+        const max = N;
+
+        chartCtx.clearRect(0, 0, w, h);
+
+        function plotLine(arr, color) {
+            chartCtx.strokeStyle = color;
+            chartCtx.beginPath();
+            arr.forEach((val, idx) => {
+                if (idx > tIndex) return; // 同步时间轴
+                const x = (idx / days) * w;
+                const y = h - (val / max) * h;
+                if (idx === 0) chartCtx.moveTo(x, y);
+                else chartCtx.lineTo(x, y);
+            });
+            chartCtx.stroke();
+        }
+
+        plotLine(S_arr, 'blue');
+        plotLine(I_arr, 'red');
+        plotLine(R_arr, 'green');
+    }
+
+    // 绘制图例
+    function drawLegend() {
+        const startX = canvas.width + 10;
+        const startY = 20;
+        const legend = [
+            { color: 'blue', text: 'Susceptible (S)' },
+            { color: 'red', text: 'Infected (I)' },
+            { color: 'green', text: 'Recovered (R)' }
+        ];
+        legend.forEach((item, idx) => {
+            ctx.fillStyle = item.color;
+            ctx.beginPath();
+            ctx.arc(startX, startY + idx * 25, 7, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = 'black';
+            ctx.font = '14px Arial';
+            ctx.fillText(item.text, startX + 15, startY + idx * 25 + 5);
+        });
+    }
+
+    drawLegend();
+
+    // 动画
     let t = 0;
     const interval = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawLegend();
 
         points.forEach(p => {
-            // 随机移动
             p.x += (Math.random() - 0.5) * 2;
             p.y += (Math.random() - 0.5) * 2;
 
-            // 绘制颜色
+            if (p.x < 0) p.x = 0;
+            if (p.x > canvas.width) p.x = canvas.width;
+            if (p.y < 0) p.y = 0;
+            if (p.y > canvas.height) p.y = canvas.height;
+
             if (p.status === 'susceptible') ctx.fillStyle = 'blue';
             else if (p.status === 'infected') ctx.fillStyle = 'red';
             else ctx.fillStyle = 'green';
@@ -102,16 +120,18 @@ function drawAnimation(S_arr, I_arr, R_arr) {
             ctx.fill();
         });
 
-        // 更新状态
+        // 更新状态，保证和折线图同步
         const currentI = Math.round(I_arr[t]);
         const currentR = Math.round(R_arr[t]);
-        for (let i = 0; i < total; i++) {
+        for (let i = 0; i < N; i++) {
             if (i < currentI) points[i].status = 'infected';
             else if (i < currentI + currentR) points[i].status = 'recovered';
             else points[i].status = 'susceptible';
         }
 
+        drawChart(t);
+
         t++;
-        if (t >= S_arr.length) clearInterval(interval);
+        if (t >= days) clearInterval(interval);
     }, 200);
-}
+});

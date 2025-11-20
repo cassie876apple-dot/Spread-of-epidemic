@@ -74,10 +74,9 @@ runBtn.addEventListener('click', () => {
         plotLine(R_arr, 'green');
     }
 
-    // 绘制图例
-    function drawLegend() {
-        const startX = canvas.width + 10;
-        const startY = 20;
+       function drawLegend() {
+        const startX = 10;  // 改到画布左上角
+        const startY = 10;
         const legend = [
             { color: 'blue', text: 'Susceptible (S)' },
             { color: 'red', text: 'Infected (I)' },
@@ -86,11 +85,11 @@ runBtn.addEventListener('click', () => {
         legend.forEach((item, idx) => {
             ctx.fillStyle = item.color;
             ctx.beginPath();
-            ctx.arc(startX, startY + idx * 25, 7, 0, 2 * Math.PI);
+            ctx.arc(startX + 10, startY + idx * 25 + 5, 7, 0, 2 * Math.PI);
             ctx.fill();
             ctx.fillStyle = 'black';
             ctx.font = '14px Arial';
-            ctx.fillText(item.text, startX + 15, startY + idx * 25 + 5);
+            ctx.fillText(item.text, startX + 25, startY + idx * 25 + 10);
         });
     }
 

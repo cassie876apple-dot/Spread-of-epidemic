@@ -1,3 +1,6 @@
+const daySlider = document.getElementById('daySlider');
+const dayLabel = document.getElementById('dayLabel');
+
 const canvas = document.getElementById('animationCanvas');
 const ctx = canvas.getContext('2d');
 

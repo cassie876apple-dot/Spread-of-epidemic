@@ -1,153 +1,133 @@
-// ===== 基础获取 =====
-const animCanvas = document.getElementById("animationCanvas");
-const animCtx = animCanvas.getContext("2d");
+const animationCanvas = document.getElementById("animationCanvas");
+const ctx = animationCanvas.getContext("2d");
 
 const chartCanvas = document.getElementById("chartCanvas");
 const chartCtx = chartCanvas.getContext("2d");
 
+const betaSlider = document.getElementById("beta");
+const gammaSlider = document.getElementById("gamma");
+const initialISlider = document.getElementById("initialI");
+const timeSlider = document.getElementById("timeSlider");
 const runBtn = document.getElementById("run");
 
-// ===== 主逻辑 =====
-runBtn.addEventListener("click", () => {
-    // 读取参数
-    const beta = parseFloat(document.getElementById("beta").value);
-    const gamma = parseFloat(document.getElementById("gamma").value);
-    const initialI = parseInt(document.getElementById("initialI").value);
+const N = 50;
+const days = 60;
 
-    const N = 50;
-    const days = 60;
+let S = [], I = [], R = [];
+let points = [];
 
-    let S = N - initialI;
-    let I = initialI;
-    let R = 0;
+/* ===== 生成 SIR 数据 ===== */
+function generateSIR() {
+    const beta = parseFloat(betaSlider.value);
+    const gamma = parseFloat(gammaSlider.value);
+    const initialI = parseInt(initialISlider.value);
 
-    const S_arr = [S];
-    const I_arr = [I];
-    const R_arr = [R];
+    S = [N - initialI];
+    I = [initialI];
+    R = [0];
 
-    // ===== SIR 计算 =====
     for (let t = 1; t < days; t++) {
-        const newInfected = Math.min(beta * S * I / N, S);
-        const newRecovered = Math.min(gamma * I, I);
+        const newInfected = Math.min(beta * S[t-1] * I[t-1] / N, S[t-1]);
+        const newRecovered = Math.min(gamma * I[t-1], I[t-1]);
 
-        S -= newInfected;
-        I += newInfected - newRecovered;
-        R += newRecovered;
-
-        S_arr.push(S);
-        I_arr.push(I);
-        R_arr.push(R);
+        S.push(S[t-1] - newInfected);
+        I.push(I[t-1] + newInfected - newRecovered);
+        R.push(R[t-1] + newRecovered);
     }
 
-    // ===== 初始化点 =====
-    let dots = [];
+    timeSlider.max = days - 1;
+}
+
+/* ===== 初始化点 ===== */
+function initPoints(initialI) {
+    points = [];
     for (let i = 0; i < N; i++) {
-        dots.push({
-            x: Math.random() * animCanvas.width,
-            y: Math.random() * animCanvas.height,
-            state: i < initialI ? "I" : "S"
+        points.push({
+            x: Math.random() * animationCanvas.width,
+            y: Math.random() * animationCanvas.height,
+            status: i < initialI ? "I" : "S"
         });
     }
+}
 
-    // ===== 绘制图例 =====
-    function drawLegend() {
-        const legend = [
-            { color: "blue", text: "Susceptible (S)" },
-            { color: "red", text: "Infected (I)" },
-            { color: "green", text: "Recovered (R)" }
-        ];
+/* ===== 画图例 ===== */
+function drawLegend() {
+    const legend = [
+        { color: "blue", text: "Susceptible (S)" },
+        { color: "red", text: "Infected (I)" },
+        { color: "green", text: "Recovered (R)" }
+    ];
 
-        legend.forEach((item, i) => {
-            animCtx.fillStyle = item.color;
-            animCtx.beginPath();
-            animCtx.arc(15, 20 + i * 22, 6, 0, Math.PI * 2);
-            animCtx.fill();
+    legend.forEach((item, i) => {
+        ctx.fillStyle = item.color;
+        ctx.beginPath();
+        ctx.arc(15, 20 + i * 25, 6, 0, Math.PI * 2);
+        ctx.fill();
 
-            animCtx.fillStyle = "black";
-            animCtx.font = "13px Arial";
-            animCtx.fillText(item.text, 28, 25 + i * 22);
-        });
-    }
+        ctx.fillStyle = "black";
+        ctx.font = "13px Arial";
+        ctx.fillText(item.text, 30, 25 + i * 25);
+    });
+}
 
-    // ===== 折线图 =====
-    function drawChart(t) {
-        chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-        const max = N;
+/* ===== 画点动画 ===== */
+function drawDots(t) {
+    ctx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
 
-        function plot(arr, color) {
-            chartCtx.strokeStyle = color;
-            chartCtx.beginPath();
-            arr.forEach((v, i) => {
-                if (i > t) return;
-                const x = (i / days) * chartCanvas.width;
-                const y = chartCanvas.height - (v / max) * chartCanvas.height;
-                if (i === 0) chartCtx.moveTo(x, y);
-                else chartCtx.lineTo(x, y);
-            });
-            chartCtx.stroke();
-        }
+    const currentI = Math.round(I[t]);
+    const currentR = Math.round(R[t]);
 
-        plot(S_arr, "blue");
-        plot(I_arr, "red");
-        plot(R_arr, "green");
+    points.forEach((p, i) => {
+        if (i < currentI) p.status = "I";
+        else if (i < currentI + currentR) p.status = "R";
+        else p.status = "S";
 
-        // 时间轴
-        chartCtx.strokeStyle = "black";
+        if (p.status === "S") ctx.fillStyle = "blue";
+        if (p.status === "I") ctx.fillStyle = "red";
+        if (p.status === "R") ctx.fillStyle = "green";
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    drawLegend();
+}
+
+/* ===== 画折线图（和时间同步） ===== */
+function drawChart(t) {
+    chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+
+    function plot(data, color) {
+        chartCtx.strokeStyle = color;
         chartCtx.beginPath();
-        const tx = (t / days) * chartCanvas.width;
-        chartCtx.moveTo(tx, 0);
-        chartCtx.lineTo(tx, chartCanvas.height);
+        data.forEach((v, i) => {
+            if (i > t) return;
+            const x = (i / days) * chartCanvas.width;
+            const y = chartCanvas.height - (v / N) * chartCanvas.height;
+            if (i === 0) chartCtx.moveTo(x, y);
+            else chartCtx.lineTo(x, y);
+        });
         chartCtx.stroke();
     }
 
-    // ===== 时间进度条 =====
-    function drawTimeline(t) {
-        const y = animCanvas.height - 10;
-        animCtx.strokeStyle = "#ccc";
-        animCtx.beginPath();
-        animCtx.moveTo(10, y);
-        animCtx.lineTo(animCanvas.width - 10, y);
-        animCtx.stroke();
+    plot(S, "blue");
+    plot(I, "red");
+    plot(R, "green");
+}
 
-        const pos = 10 + (t / days) * (animCanvas.width - 20);
-        animCtx.fillStyle = "black";
-        animCtx.beginPath();
-        animCtx.arc(pos, y, 4, 0, Math.PI * 2);
-        animCtx.fill();
-    }
+/* ===== 时间轴变化 ===== */
+timeSlider.addEventListener("input", () => {
+    const t = parseInt(timeSlider.value);
+    drawDots(t);
+    drawChart(t);
+});
 
-    // ===== 动画循环 =====
-    let t = 0;
-    const interval = setInterval(() => {
-        animCtx.clearRect(0, 0, animCanvas.width, animCanvas.height);
-
-        drawLegend();
-        drawTimeline(t);
-
-        // 更新状态
-        const currentI = Math.round(I_arr[t]);
-        const currentR = Math.round(R_arr[t]);
-
-        dots.forEach((d, i) => {
-            if (i < currentI) d.state = "I";
-            else if (i < currentI + currentR) d.state = "R";
-            else d.state = "S";
-
-            d.x += (Math.random() - 0.5) * 2;
-            d.y += (Math.random() - 0.5) * 2;
-
-            if (d.state === "S") animCtx.fillStyle = "blue";
-            if (d.state === "I") animCtx.fillStyle = "red";
-            if (d.state === "R") animCtx.fillStyle = "green";
-
-            animCtx.beginPath();
-            animCtx.arc(d.x, d.y, 4, 0, Math.PI * 2);
-            animCtx.fill();
-        });
-
-        drawChart(t);
-
-        t++;
-        if (t >= days) clearInterval(interval);
-    }, 200);
+/* ===== 重置按钮 ===== */
+runBtn.addEventListener("click", () => {
+    generateSIR();
+    initPoints(parseInt(initialISlider.value));
+    timeSlider.value = 0;
+    drawDots(0);
+    drawChart(0);
 });

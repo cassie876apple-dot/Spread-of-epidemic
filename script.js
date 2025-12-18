@@ -1,33 +1,31 @@
-const daySlider = document.getElementById('daySlider');
-const dayLabel = document.getElementById('dayLabel');
+// ===== 基础获取 =====
+const animCanvas = document.getElementById("animationCanvas");
+const animCtx = animCanvas.getContext("2d");
 
-const canvas = document.getElementById('animationCanvas');
-const ctx = canvas.getContext('2d');
+const chartCanvas = document.getElementById("chartCanvas");
+const chartCtx = chartCanvas.getContext("2d");
 
-const chartCanvas = document.getElementById('chartCanvas');
-const chartCtx = chartCanvas.getContext('2d');
+const runBtn = document.getElementById("run");
 
-const runBtn = document.getElementById('run');
-
-runBtn.addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-
-    const beta = parseFloat(document.getElementById('beta').value);
-    const gamma = parseFloat(document.getElementById('gamma').value);
-    const initialI = parseInt(document.getElementById('initialI').value);
+// ===== 主逻辑 =====
+runBtn.addEventListener("click", () => {
+    // 读取参数
+    const beta = parseFloat(document.getElementById("beta").value);
+    const gamma = parseFloat(document.getElementById("gamma").value);
+    const initialI = parseInt(document.getElementById("initialI").value);
 
     const N = 50;
+    const days = 60;
+
     let S = N - initialI;
     let I = initialI;
     let R = 0;
 
-    const days = 50;
-    let S_arr = [S];
-    let I_arr = [I];
-    let R_arr = [R];
+    const S_arr = [S];
+    const I_arr = [I];
+    const R_arr = [R];
 
-    // SIR 计算
+    // ===== SIR 计算 =====
     for (let t = 1; t < days; t++) {
         const newInfected = Math.min(beta * S * I / N, S);
         const newRecovered = Math.min(gamma * I, I);
@@ -39,151 +37,117 @@ runBtn.addEventListener('click', () => {
         S_arr.push(S);
         I_arr.push(I);
         R_arr.push(R);
-
-        daySlider.value = 0;
-        dayLabel.innerText = 0;
     }
 
-    // 初始化点
-    let points = [];
+    // ===== 初始化点 =====
+    let dots = [];
     for (let i = 0; i < N; i++) {
-        points.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            status: i < initialI ? 'infected' : 'susceptible'
+        dots.push({
+            x: Math.random() * animCanvas.width,
+            y: Math.random() * animCanvas.height,
+            state: i < initialI ? "I" : "S"
         });
     }
 
-    // 绘制折线图
-    function drawChart(tIndex) {
-        const w = chartCanvas.width;
-        const h = chartCanvas.height;
+    // ===== 绘制图例 =====
+    function drawLegend() {
+        const legend = [
+            { color: "blue", text: "Susceptible (S)" },
+            { color: "red", text: "Infected (I)" },
+            { color: "green", text: "Recovered (R)" }
+        ];
+
+        legend.forEach((item, i) => {
+            animCtx.fillStyle = item.color;
+            animCtx.beginPath();
+            animCtx.arc(15, 20 + i * 22, 6, 0, Math.PI * 2);
+            animCtx.fill();
+
+            animCtx.fillStyle = "black";
+            animCtx.font = "13px Arial";
+            animCtx.fillText(item.text, 28, 25 + i * 22);
+        });
+    }
+
+    // ===== 折线图 =====
+    function drawChart(t) {
+        chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
         const max = N;
 
-        chartCtx.clearRect(0, 0, w, h);
-
-        function plotLine(arr, color) {
+        function plot(arr, color) {
             chartCtx.strokeStyle = color;
             chartCtx.beginPath();
-            arr.forEach((val, idx) => {
-                if (idx > tIndex) return; // 同步时间轴
-                const x = (idx / days) * w;
-                const y = h - (val / max) * h;
-                if (idx === 0) chartCtx.moveTo(x, y);
+            arr.forEach((v, i) => {
+                if (i > t) return;
+                const x = (i / days) * chartCanvas.width;
+                const y = chartCanvas.height - (v / max) * chartCanvas.height;
+                if (i === 0) chartCtx.moveTo(x, y);
                 else chartCtx.lineTo(x, y);
             });
             chartCtx.stroke();
         }
 
-        plotLine(S_arr, 'blue');
-        plotLine(I_arr, 'red');
-        plotLine(R_arr, 'green');
+        plot(S_arr, "blue");
+        plot(I_arr, "red");
+        plot(R_arr, "green");
+
+        // 时间轴
+        chartCtx.strokeStyle = "black";
+        chartCtx.beginPath();
+        const tx = (t / days) * chartCanvas.width;
+        chartCtx.moveTo(tx, 0);
+        chartCtx.lineTo(tx, chartCanvas.height);
+        chartCtx.stroke();
     }
 
-       function drawLegend() {
-        const startX = 10;  // 改到画布左上角
-        const startY = 10;
-        const legend = [
-            { color: 'blue', text: 'Susceptible (S)' },
-            { color: 'red', text: 'Infected (I)' },
-            { color: 'green', text: 'Recovered (R)' }
-        ];
-        legend.forEach((item, idx) => {
-            ctx.fillStyle = item.color;
-            ctx.beginPath();
-            ctx.arc(startX + 10, startY + idx * 25 + 5, 7, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.fillStyle = 'black';
-            ctx.font = '14px Arial';
-            ctx.fillText(item.text, startX + 25, startY + idx * 25 + 10);
-        });
+    // ===== 时间进度条 =====
+    function drawTimeline(t) {
+        const y = animCanvas.height - 10;
+        animCtx.strokeStyle = "#ccc";
+        animCtx.beginPath();
+        animCtx.moveTo(10, y);
+        animCtx.lineTo(animCanvas.width - 10, y);
+        animCtx.stroke();
+
+        const pos = 10 + (t / days) * (animCanvas.width - 20);
+        animCtx.fillStyle = "black";
+        animCtx.beginPath();
+        animCtx.arc(pos, y, 4, 0, Math.PI * 2);
+        animCtx.fill();
     }
 
-        function renderDay(day) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawLegend();
-
-            const Icount = Math.round(I_arr[day]);
-            const Rcount = Math.round(R_arr[day]);
-
-            points.forEach((p, i) => {
-                if (i < Icount) p.status = 'infected';
-                else if (i < Icount + Rcount) p.status = 'recovered';
-                else p.status = 'susceptible';
-
-                if (p.status === 'susceptible') ctx.fillStyle = 'blue';
-                else if (p.status === 'infected') ctx.fillStyle = 'red';
-                else ctx.fillStyle = 'green';
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
-                ctx.fill();
-            });
-
-            drawChart(day);
-    }
-
-
-    drawLegend();
-
-    // 动画
+    // ===== 动画循环 =====
     let t = 0;
     const interval = setInterval(() => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        animCtx.clearRect(0, 0, animCanvas.width, animCanvas.height);
+
         drawLegend();
+        drawTimeline(t);
 
-        points.forEach(p => {
-            p.x += (Math.random() - 0.5) * 2;
-            p.y += (Math.random() - 0.5) * 2;
-
-            if (p.x < 0) p.x = 0;
-            if (p.x > canvas.width) p.x = canvas.width;
-            if (p.y < 0) p.y = 0;
-            if (p.y > canvas.height) p.y = canvas.height;
-
-            if (p.status === 'susceptible') ctx.fillStyle = 'blue';
-            else if (p.status === 'infected') ctx.fillStyle = 'red';
-            else ctx.fillStyle = 'green';
-
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
-            ctx.fill();
-        });
-
-        // 更新状态，保证和折线图同步
+        // 更新状态
         const currentI = Math.round(I_arr[t]);
         const currentR = Math.round(R_arr[t]);
-        for (let i = 0; i < N; i++) {
-            if (i < currentI) points[i].status = 'infected';
-            else if (i < currentI + currentR) points[i].status = 'recovered';
-            else points[i].status = 'susceptible';
-        }
+
+        dots.forEach((d, i) => {
+            if (i < currentI) d.state = "I";
+            else if (i < currentI + currentR) d.state = "R";
+            else d.state = "S";
+
+            d.x += (Math.random() - 0.5) * 2;
+            d.y += (Math.random() - 0.5) * 2;
+
+            if (d.state === "S") animCtx.fillStyle = "blue";
+            if (d.state === "I") animCtx.fillStyle = "red";
+            if (d.state === "R") animCtx.fillStyle = "green";
+
+            animCtx.beginPath();
+            animCtx.arc(d.x, d.y, 4, 0, Math.PI * 2);
+            animCtx.fill();
+        });
 
         drawChart(t);
 
         t++;
         if (t >= days) clearInterval(interval);
     }, 200);
-
-    daySlider.oninput = () => {
-    const day = parseInt(daySlider.value);
-    dayLabel.innerText = day;
-    renderDay(day);
-};
-
-    let currentDay = 0;
-    renderDay(0);
-
-    const play = setInterval(() => {
-        currentDay++;
-        if (currentDay >= days) {
-            clearInterval(play);
-            return;
-        }
-        daySlider.value = currentDay;
-        dayLabel.innerText = currentDay;
-        renderDay(currentDay);
-    }, 300);
-
-    
 });

@@ -39,6 +39,9 @@ runBtn.addEventListener('click', () => {
         S_arr.push(S);
         I_arr.push(I);
         R_arr.push(R);
+
+        daySlider.value = 0;
+        dayLabel.innerText = 0;
     }
 
     // 初始化点
@@ -96,6 +99,31 @@ runBtn.addEventListener('click', () => {
         });
     }
 
+        function renderDay(day) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawLegend();
+
+            const Icount = Math.round(I_arr[day]);
+            const Rcount = Math.round(R_arr[day]);
+
+            points.forEach((p, i) => {
+                if (i < Icount) p.status = 'infected';
+                else if (i < Icount + Rcount) p.status = 'recovered';
+                else p.status = 'susceptible';
+
+                if (p.status === 'susceptible') ctx.fillStyle = 'blue';
+                else if (p.status === 'infected') ctx.fillStyle = 'red';
+                else ctx.fillStyle = 'green';
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+
+            drawChart(day);
+    }
+
+
     drawLegend();
 
     // 动画
@@ -136,4 +164,26 @@ runBtn.addEventListener('click', () => {
         t++;
         if (t >= days) clearInterval(interval);
     }, 200);
+
+    daySlider.oninput = () => {
+    const day = parseInt(daySlider.value);
+    dayLabel.innerText = day;
+    renderDay(day);
+};
+
+    let currentDay = 0;
+    renderDay(0);
+
+    const play = setInterval(() => {
+        currentDay++;
+        if (currentDay >= days) {
+            clearInterval(play);
+            return;
+        }
+        daySlider.value = currentDay;
+        dayLabel.innerText = currentDay;
+        renderDay(currentDay);
+    }, 300);
+
+    
 });

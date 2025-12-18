@@ -1,90 +1,97 @@
-const animationCanvas = document.getElementById("animationCanvas");
-const ctx = animationCanvas.getContext("2d");
+const canvas = document.getElementById('animationCanvas');
+const ctx = canvas.getContext('2d');
 
-const chartCanvas = document.getElementById("chartCanvas");
-const chartCtx = chartCanvas.getContext("2d");
+const chartCanvas = document.getElementById('chartCanvas');
+const chartCtx = chartCanvas.getContext('2d');
 
-const betaSlider = document.getElementById("beta");
-const gammaSlider = document.getElementById("gamma");
-const initialISlider = document.getElementById("initialI");
-const timeSlider = document.getElementById("timeSlider");
-const runBtn = document.getElementById("run");
+const runBtn = document.getElementById('run');
+const timeline = document.getElementById('timeline');
+const timelineContainer = document.getElementById('timelineContainer');
 
-const N = 50;
-const days = 60;
-
-let S = [], I = [], R = [];
+let S_arr = [], I_arr = [], R_arr = [];
 let points = [];
+let N = 50;
+let days = 60;
 
-/* ===== 生成 SIR 数据 ===== */
-function generateSIR() {
-    const beta = parseFloat(betaSlider.value);
-    const gamma = parseFloat(gammaSlider.value);
-    const initialI = parseInt(initialISlider.value);
+runBtn.addEventListener('click', () => {
+    timelineContainer.style.display = 'none';
 
-    S = [N - initialI];
-    I = [initialI];
-    R = [0];
+    const beta = parseFloat(betaInput.value);
+    const gamma = parseFloat(gammaInput.value);
+    const initialI = parseInt(initialIInput.value);
+
+    let S = N - initialI;
+    let I = initialI;
+    let R = 0;
+
+    S_arr = [S];
+    I_arr = [I];
+    R_arr = [R];
 
     for (let t = 1; t < days; t++) {
-        const newInfected = Math.min(beta * S[t-1] * I[t-1] / N, S[t-1]);
-        const newRecovered = Math.min(gamma * I[t-1], I[t-1]);
+        const newInfected = Math.min(beta * S * I / N, S);
+        const newRecovered = Math.min(gamma * I, I);
 
-        S.push(S[t-1] - newInfected);
-        I.push(I[t-1] + newInfected - newRecovered);
-        R.push(R[t-1] + newRecovered);
+        S -= newInfected;
+        I += newInfected - newRecovered;
+        R += newRecovered;
+
+        S_arr.push(S);
+        I_arr.push(I);
+        R_arr.push(R);
     }
 
-    timeSlider.max = days - 1;
-}
-
-/* ===== 初始化点 ===== */
-function initPoints(initialI) {
     points = [];
     for (let i = 0; i < N; i++) {
         points.push({
-            x: Math.random() * animationCanvas.width,
-            y: Math.random() * animationCanvas.height,
-            status: i < initialI ? "I" : "S"
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            status: i < initialI ? 'infected' : 'susceptible'
         });
     }
+
+    playAnimation();
+});
+
+function playAnimation() {
+    let t = 0;
+
+    const interval = setInterval(() => {
+        drawFrame(t, true);
+        t++;
+
+        if (t >= days) {
+            clearInterval(interval);
+            setupTimeline();
+        }
+    }, 150);
 }
 
-/* ===== 画图例 ===== */
-function drawLegend() {
-    const legend = [
-        { color: "blue", text: "Susceptible (S)" },
-        { color: "red", text: "Infected (I)" },
-        { color: "green", text: "Recovered (R)" }
-    ];
+function setupTimeline() {
+    timeline.max = days - 1;
+    timeline.value = days - 1;
+    timelineContainer.style.display = 'block';
 
-    legend.forEach((item, i) => {
-        ctx.fillStyle = item.color;
-        ctx.beginPath();
-        ctx.arc(15, 20 + i * 25, 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "black";
-        ctx.font = "13px Arial";
-        ctx.fillText(item.text, 30, 25 + i * 25);
-    });
+    timeline.oninput = () => {
+        drawFrame(parseInt(timeline.value), false);
+    };
 }
 
-/* ===== 画点动画 ===== */
-function drawDots(t) {
-    ctx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
+function drawFrame(t, moveDots) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
 
-    const currentI = Math.round(I[t]);
-    const currentR = Math.round(R[t]);
+    updateStatuses(t);
 
-    points.forEach((p, i) => {
-        if (i < currentI) p.status = "I";
-        else if (i < currentI + currentR) p.status = "R";
-        else p.status = "S";
+    points.forEach(p => {
+        if (moveDots) {
+            p.x += (Math.random() - 0.5) * 2;
+            p.y += (Math.random() - 0.5) * 2;
+        }
 
-        if (p.status === "S") ctx.fillStyle = "blue";
-        if (p.status === "I") ctx.fillStyle = "red";
-        if (p.status === "R") ctx.fillStyle = "green";
+        ctx.fillStyle =
+            p.status === 'susceptible' ? 'blue' :
+            p.status === 'infected' ? 'red' : 'green';
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
@@ -92,42 +99,54 @@ function drawDots(t) {
     });
 
     drawLegend();
+    drawChart(t);
 }
 
-/* ===== 画折线图（和时间同步） ===== */
-function drawChart(t) {
-    chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+function updateStatuses(t) {
+    const I = Math.round(I_arr[t]);
+    const R = Math.round(R_arr[t]);
 
-    function plot(data, color) {
+    for (let i = 0; i < N; i++) {
+        if (i < I) points[i].status = 'infected';
+        else if (i < I + R) points[i].status = 'recovered';
+        else points[i].status = 'susceptible';
+    }
+}
+
+function drawLegend() {
+    const legend = [
+        ['blue', 'Susceptible'],
+        ['red', 'Infected'],
+        ['green', 'Recovered']
+    ];
+
+    legend.forEach((l, i) => {
+        ctx.fillStyle = l[0];
+        ctx.beginPath();
+        ctx.arc(15, 20 + i * 20, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = 'black';
+        ctx.fillText(l[1], 30, 25 + i * 20);
+    });
+}
+
+function drawChart(t) {
+    const w = chartCanvas.width;
+    const h = chartCanvas.height;
+
+    function plot(arr, color) {
         chartCtx.strokeStyle = color;
         chartCtx.beginPath();
-        data.forEach((v, i) => {
-            if (i > t) return;
-            const x = (i / days) * chartCanvas.width;
-            const y = chartCanvas.height - (v / N) * chartCanvas.height;
-            if (i === 0) chartCtx.moveTo(x, y);
-            else chartCtx.lineTo(x, y);
-        });
+        for (let i = 0; i <= t; i++) {
+            const x = i / days * w;
+            const y = h - arr[i] / N * h;
+            i === 0 ? chartCtx.moveTo(x, y) : chartCtx.lineTo(x, y);
+        }
         chartCtx.stroke();
     }
 
-    plot(S, "blue");
-    plot(I, "red");
-    plot(R, "green");
+    plot(S_arr, 'blue');
+    plot(I_arr, 'red');
+    plot(R_arr, 'green');
 }
-
-/* ===== 时间轴变化 ===== */
-timeSlider.addEventListener("input", () => {
-    const t = parseInt(timeSlider.value);
-    drawDots(t);
-    drawChart(t);
-});
-
-/* ===== 重置按钮 ===== */
-runBtn.addEventListener("click", () => {
-    generateSIR();
-    initPoints(parseInt(initialISlider.value));
-    timeSlider.value = 0;
-    drawDots(0);
-    drawChart(0);
-});

@@ -6,28 +6,30 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>SIR Epidemic Simulation</h1>
 
-    <label>Infection rate (beta)</label>
+<h1>SIR Epidemic Simulation</h1>
+
+<div class="controls">
+    <label>Infection rate (β)</label>
     <input type="range" id="beta" min="0" max="1" step="0.01" value="0.3">
 
-    <label>Recovery rate (gamma)</label>
+    <label>Recovery rate (γ)</label>
     <input type="range" id="gamma" min="0" max="1" step="0.01" value="0.1">
 
-    <label>Initial infected</label>
-    <input type="range" id="initialI" min="1" max="50" step="1" value="5">
+    <label>Initial Infected</label>
+    <input type="range" id="initialI" min="1" max="20" step="1" value="3">
 
-    <button id="run">Start Simulation</button>
+    <button id="run">Start / Reset</button>
+</div>
 
-    <br><br>
+<h3>Timeline</h3>
+<input type="range" id="timeSlider" min="0" max="0" step="1" value="0">
 
-    <label>Day:</label>
-    <input type="range" id="daySlider" min="0" max="49" value="0">
-    <span id="dayLabel">0</span>
-    
+<div class="canvas-container">
     <canvas id="animationCanvas" width="400" height="400"></canvas>
-    <canvas id="chartCanvas" width="400" height="200"></canvas>
+    <canvas id="chartCanvas" width="400" height="400"></canvas>
+</div>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

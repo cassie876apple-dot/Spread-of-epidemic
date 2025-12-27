@@ -1,23 +1,18 @@
 body {
     font-family: Arial, sans-serif;
-    padding: 20px;
+    text-align: center;
 }
 
-.controls label {
+.controls {
+    margin-bottom: 20px;
+}
+
+label {
     display: block;
     margin-top: 10px;
 }
 
 canvas {
     border: 1px solid #ccc;
-    margin-top: 15px;
-}
-
-#timelineContainer {
-    margin-top: 20px;
-}
-
-#timeline {
-    width: 500px;
-    background: linear-gradient(to right, blue, red, green);
+    margin: 10px;
 }

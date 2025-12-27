@@ -7,12 +7,116 @@
 </head>
 <body>
 
+<!-- 顶部固定导航栏 -->
+<header class="fixed-header">
+    SIR Epidemic Simulation
+</header>
+
+<!-- 背景 -->
 <div class="background"></div>
 
-<div class="layout">
+<main class="pages">
 
-    <!-- 左侧翻页说明 -->
-    <aside class="side left">
+    <!-- Hero 页 -->
+    <section class="hero-page">
+        <h1>SIR Epidemic Simulation</h1>
+        <p class="subtitle">
+            An interactive visualization of disease spread using a mathematical model
+        </p>
+        <div class="scroll-arrow">↓</div>
+    </section>
+
+    <!-- 第二页：两张图片展示 -->
+    <section class="second-page">
+        <img src="https://via.placeholder.com/400x250" alt="Image 1">
+        <img src="https://via.placeholder.com/400x250" alt="Image 2">
+        <div class="scroll-arrow">↓</div>
+    </section>
+
+    <!-- 第三页：Explanation -->
+    <section class="card explanation">
+        <h2>SIR Model Explanation</h2>
+
+        <p>
+            This simulation is based on the classical <strong>SIR epidemiological model</strong>,
+            which divides a closed population into three compartments: Susceptible (S),
+            Infected (I), and Recovered (R).
+        </p>
+
+        <p>
+            At each time step, the model updates these values using the following equations:
+        </p>
+
+        <pre>
+new infections = β × S × I / N
+new recoveries = γ × I
+
+S(t+1) = S(t) − new infections
+I(t+1) = I(t) + new infections − new recoveries
+R(t+1) = R(t) + new recoveries
+        </pre>
+
+        <p>
+            Here, β represents the infection rate and γ represents the recovery rate.
+            The total population N is assumed to remain constant.
+        </p>
+
+        <p>
+            This project visualizes these abstract equations by mapping individuals
+            to moving emojis, allowing the mathematical behavior of the model
+            to be observed intuitively.
+        </p>
+
+        <h3>Limitations</h3>
+        <p>
+            The SIR model assumes homogeneous mixing, equal susceptibility,
+            and no births or deaths. It does not account for age structure,
+            spatial clustering, reinfection, or public health interventions.
+            Despite these limitations, it provides a strong conceptual foundation
+            for understanding epidemic dynamics.
+        </p>
+    </section>
+
+    <!-- 第四页：SIR 动画 + 图表 -->
+    <section class="simulation-section card">
+        <!-- 控制区 -->
+        <section class="card controls">
+            <div class="control">
+                <label>Infection rate (β)</label>
+                <input type="range" id="beta" min="0" max="1" step="0.01" value="0.3">
+            </div>
+
+            <div class="control">
+                <label>Recovery rate (γ)</label>
+                <input type="range" id="gamma" min="0" max="1" step="0.01" value="0.1">
+            </div>
+
+            <div class="control">
+                <label>Initial infected</label>
+                <input type="range" id="initialI" min="1" max="20" step="1" value="3">
+            </div>
+
+            <button id="run">Start Simulation</button>
+        </section>
+
+        <!-- 动画 -->
+        <div class="simulation-header">
+            <h2>Population Animation</h2>
+            <div class="legend">
+                <span>🧍 Susceptible</span>
+                <span>🦠 Infected</span>
+                <span>🛡️ Recovered</span>
+            </div>
+        </div>
+        <canvas id="animationCanvas" width="600" height="400"></canvas>
+
+        <!-- 折线图 -->
+        <h2>Population Over Time</h2>
+        <canvas id="chartCanvas" width="600" height="300"></canvas>
+    </section>
+
+    <!-- 第五页：四个翻页卡片 -->
+    <section class="flipcards-section">
         <div class="flip-card">
             <div class="flip-inner">
                 <div class="flip-front">Epidemic Spread</div>
@@ -37,105 +141,7 @@
                 </div>
             </div>
         </div>
-    </aside>
 
-    <!-- 中央主内容 -->
-    <main class="middle">
-
-        <header class="hero">
-            <h1>SIR Epidemic Simulation</h1>
-            <p class="subtitle">
-                An interactive visualization of disease spread using a mathematical model
-            </p>
-        </header>
-
-        <!-- 控制区 -->
-        <section class="card controls">
-            <div class="control">
-                <label>Infection rate (β)</label>
-                <input type="range" id="beta" min="0" max="1" step="0.01" value="0.3">
-            </div>
-
-            <div class="control">
-                <label>Recovery rate (γ)</label>
-                <input type="range" id="gamma" min="0" max="1" step="0.01" value="0.1">
-            </div>
-
-            <div class="control">
-                <label>Initial infected</label>
-                <input type="range" id="initialI" min="1" max="20" step="1" value="3">
-            </div>
-
-            <button id="run">Start Simulation</button>
-        </section>
-
-        <!-- 动画 -->
-        <section class="card simulation">
-            <div class="simulation-header">
-                <h2>Population Animation</h2>
-                <div class="legend">
-                    <span>🧍 Susceptible</span>
-                    <span>🦠 Infected</span>
-                    <span>🛡️ Recovered</span>
-                </div>
-            </div>
-            <canvas id="animationCanvas" width="600" height="400"></canvas>
-        </section>
-
-        <!-- 折线图（只保留一个） -->
-        <section class="card">
-            <h2>Population Over Time</h2>
-            <canvas id="chartCanvas" width="600" height="300"></canvas>
-        </section>
-
-        <!-- 详细模型说明 -->
-        <section class="card explanation">
-            <h2>SIR Model Explanation</h2>
-
-            <p>
-                This simulation is based on the classical <strong>SIR epidemiological model</strong>,
-                which divides a closed population into three compartments: Susceptible (S),
-                Infected (I), and Recovered (R).
-            </p>
-
-            <p>
-                At each time step, the model updates these values using the following equations:
-            </p>
-
-            <pre>
-new infections = β × S × I / N
-new recoveries = γ × I
-
-S(t+1) = S(t) − new infections
-I(t+1) = I(t) + new infections − new recoveries
-R(t+1) = R(t) + new recoveries
-            </pre>
-
-            <p>
-                Here, β represents the infection rate and γ represents the recovery rate.
-                The total population N is assumed to remain constant.
-            </p>
-
-            <p>
-                This project visualizes these abstract equations by mapping individuals
-                to moving emojis, allowing the mathematical behavior of the model
-                to be observed intuitively.
-            </p>
-
-            <h3>Limitations</h3>
-            <p>
-                The SIR model assumes homogeneous mixing, equal susceptibility,
-                and no births or deaths. It does not account for age structure,
-                spatial clustering, reinfection, or public health interventions.
-                Despite these limitations, it provides a strong conceptual foundation
-                for understanding epidemic dynamics.
-            </p>
-        </section>
-
-    </main>
-
-    <!-- 右侧翻页说明 -->
-    <aside class="side right">
         <div class="flip-card">
             <div class="flip-inner">
                 <div class="flip-front">Why SIR?</div>
@@ -157,9 +163,14 @@ R(t+1) = R(t) + new recoveries
                 </div>
             </div>
         </div>
-    </aside>
+    </section>
 
-</div>
+    <!-- 第六页：Thank You -->
+    <section class="thank-you-page">
+        <h1>Thank You</h1>
+    </section>
+
+</main>
 
 <script src="script.js"></script>
 </body>

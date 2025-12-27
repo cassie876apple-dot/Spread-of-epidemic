@@ -1,34 +1,90 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(120deg, #f6f9ff, #e9f0ff);
+    font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    background: radial-gradient(circle at top, #eef2ff, #e0e7ff, #f8fafc);
+    color: #1f2937;
     text-align: center;
 }
 
+/* 标题 */
 h1 {
-    margin-top: 20px;
+    margin-top: 28px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
+/* 控制区卡片 */
 .controls {
-    margin: 20px auto;
-    width: 600px;
+    margin: 24px auto;
+    width: 640px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    padding: 20px 24px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px 16px;
     align-items: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
+.controls label {
+    text-align: left;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.controls input[type="range"] {
+    grid-column: span 2;
+}
+
+/* 按钮 */
 button {
     grid-column: span 2;
-    padding: 10px;
+    margin-top: 10px;
+    padding: 12px;
     font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6366f1, #3b82f6);
+    color: white;
     cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.35);
+}
+
+/* Canvas 卡片 */
 canvas {
-    margin: 20px auto;
+    margin: 24px auto;
     display: block;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    box-shadow: 0 18px 35px rgba(0,0,0,0.1);
+}
+
+/* 说明文字卡片 */
+.explanation {
+    width: 640px;
+    margin: 30px auto 50px;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    padding: 22px 26px;
+    text-align: left;
+    line-height: 1.7;
+    font-size: 15px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+.explanation h2 {
+    margin-top: 0;
+    font-size: 18px;
 }

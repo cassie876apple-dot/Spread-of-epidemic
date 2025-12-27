@@ -4,161 +4,174 @@
     <meta charset="UTF-8">
     <title>SIR Epidemic Simulation</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- 固定导航栏 -->
-<header class="navbar">
-    <div class="logo">🦠</div>
-    <div class="title">SIR Epidemic Simulation</div>
+<!-- 顶部导航栏 -->
+<nav class="navbar">
+    <div class="brand">
+        <span class="emoji">🦠</span>
+        <span class="title">SIR Epidemic Simulation</span>
+    </div>
     <div class="menu">
-        <div class="menu-item" data-target="hero">Home</div>
-        <div class="menu-item" data-target="simulation">Simulation</div>
-        <div class="menu-item" data-target="explanation">Model</div>
-        <div class="menu-item" data-target="cards">Insights</div>
-        <div class="menu-item" data-target="thankyou">Thank You</div>
+        <span data-target="page1">Home</span>
+        <span data-target="page2">Simulation</span>
+        <span data-target="page3">Explanation</span>
+        <span data-target="page4">Cards</span>
+        <span data-target="page5">Thank You</span>
     </div>
-</header>
+</nav>
 
-<!-- Hero 页 -->
-<section class="page hero" id="hero">
-    <div class="background"></div>
-    <h1>SIR Epidemic Simulation</h1>
-    <p class="subtitle">Visualize disease spread with an interactive SIR model</p>
-    <div class="arrow">⌄</div>
-</section>
+<!-- 页面容器 -->
+<div class="pages">
 
-<!-- Simulation 页 第二页 -->
-<section class="page simulation-page" id="simulation">
-    <div class="card controls">
-        <div class="control">
-            <label>Infection rate (β)</label>
-            <input type="range" id="beta" min="0" max="1" step="0.01" value="0.3">
+    <!-- 第一页：大背景 + 高级标题 -->
+    <section class="page" id="page1">
+        <div class="background-page"></div>
+        <div class="hero">
+            <h1 class="hero-title">SIR Epidemic Simulation</h1>
+            <p class="subtitle">Interactive visualization of disease spread using a mathematical model</p>
+            <div class="scroll-arrow">⬇️</div>
         </div>
+    </section>
 
-        <div class="control">
-            <label>Recovery rate (γ)</label>
-            <input type="range" id="gamma" min="0" max="1" step="0.01" value="0.1">
+    <!-- 第二页：SIR 控制面板 + 动画 + Legend -->
+    <section class="page" id="page2">
+        <div class="simulation-block">
+            <section class="card controls">
+                <div class="control">
+                    <label>Infection rate (β)</label>
+                    <input type="range" id="beta" min="0" max="1" step="0.01" value="0.3">
+                </div>
+
+                <div class="control">
+                    <label>Recovery rate (γ)</label>
+                    <input type="range" id="gamma" min="0" max="1" step="0.01" value="0.1">
+                </div>
+
+                <div class="control">
+                    <label>Initial infected</label>
+                    <input type="range" id="initialI" min="1" max="20" step="1" value="3">
+                </div>
+
+                <button id="run">Start Simulation</button>
+            </section>
+
+            <section class="card simulation">
+                <div class="simulation-header">
+                    <h2>Population Animation</h2>
+                    <div class="legend">
+                        <span>🧍 Susceptible</span>
+                        <span>🦠 Infected</span>
+                        <span>🛡️ Recovered</span>
+                    </div>
+                </div>
+                <canvas id="animationCanvas" width="600" height="400"></canvas>
+            </section>
         </div>
+        <div class="scroll-arrow">⬇️</div>
+    </section>
 
-        <div class="control">
-            <label>Initial infected</label>
-            <input type="range" id="initialI" min="1" max="20" step="1" value="3">
-        </div>
+    <!-- 第三页：详细模型说明 -->
+    <section class="page" id="page3">
+        <section class="card explanation">
+            <h2>SIR Model Explanation</h2>
 
-        <button id="run">Start Simulation</button>
-    </div>
+            <p>
+                This simulation is based on the classical <strong>SIR epidemiological model</strong>,
+                which divides a closed population into three compartments: Susceptible (S),
+                Infected (I), and Recovered (R).
+            </p>
 
-    <div class="card simulation-canvas">
-        <h2>Population Animation</h2>
-        <canvas id="animationCanvas" width="600" height="400"></canvas>
-        <div class="legend">
-            <span>🧍 Susceptible</span>
-            <span>🦠 Infected</span>
-            <span>🛡️ Recovered</span>
-        </div>
-    </div>
-    <div class="arrow">⌄</div>
-</section>
+            <p>
+                At each time step, the model updates these values using the following equations:
+            </p>
 
-<!-- Explanation 页 第三页 -->
-<section class="page explanation-page" id="explanation">
-    <div class="card explanation">
-        <h2>SIR Model Explanation</h2>
-        <p>
-            This simulation is based on the classical <strong>SIR epidemiological model</strong>,
-            which divides a closed population into three compartments: Susceptible (S),
-            Infected (I), and Recovered (R).
-        </p>
-        <p>
-            At each time step, the model updates these values using the following equations:
-        </p>
-        <pre>
+            <pre>
 new infections = β × S × I / N
 new recoveries = γ × I
 
 S(t+1) = S(t) − new infections
 I(t+1) = I(t) + new infections − new recoveries
 R(t+1) = R(t) + new recoveries
-        </pre>
-        <p>
-            Here, β represents the infection rate and γ represents the recovery rate.
-            The total population N is assumed to remain constant.
-        </p>
-        <p>
-            This project visualizes these abstract equations by mapping individuals
-            to moving emojis, allowing the mathematical behavior of the model
-            to be observed intuitively.
-        </p>
-        <h3>Limitations</h3>
-        <p>
-            The SIR model assumes homogeneous mixing, equal susceptibility,
-            and no births or deaths. It does not account for age structure,
-            spatial clustering, reinfection, or public health interventions.
-            Despite these limitations, it provides a strong conceptual foundation
-            for understanding epidemic dynamics.
-        </p>
-    </div>
-    <div class="arrow">⌄</div>
-</section>
+            </pre>
 
-<!-- Flip Card 页 第四页 -->
-<section class="page cards-page" id="cards">
-    <div class="flip-grid">
-        <div class="flip-card">
-            <div class="flip-inner">
-                <div class="flip-front">Epidemic Spread</div>
-                <div class="flip-back">
-                    Epidemic spread describes how infectious diseases propagate
-                    through a population over time. Transmission depends on
-                    contact frequency, proximity, and probability of infection.
-                    In real life, this process is influenced by mobility,
-                    social behavior, and environmental conditions.
-                </div>
-            </div>
-        </div>
-        <div class="flip-card">
-            <div class="flip-inner">
-                <div class="flip-front">Model Types</div>
-                <div class="flip-back">
-                    Epidemiology uses multiple modeling approaches. SI and SIR
-                    models describe basic infection dynamics, while SEIR adds an
-                    exposed stage. Agent-based models simulate individuals with
-                    unique behaviors but require far more data and computation.
-                </div>
-            </div>
-        </div>
-        <div class="flip-card">
-            <div class="flip-inner">
-                <div class="flip-front">Why SIR?</div>
-                <div class="flip-back">
-                    The SIR model balances simplicity and explanatory power.
-                    It captures essential epidemic behavior while remaining
-                    mathematically transparent and computationally efficient.
-                </div>
-            </div>
-        </div>
-        <div class="flip-card">
-            <div class="flip-inner">
-                <div class="flip-front">Future Improvements</div>
-                <div class="flip-back">
-                    Future extensions could include vaccination, immunity loss,
-                    age-stratified populations, or network-based contact patterns
-                    to better reflect real-world epidemics.
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="arrow">⌄</div>
-</section>
+            <p>
+                Here, β represents the infection rate and γ represents the recovery rate.
+                The total population N is assumed to remain constant.
+            </p>
 
-<!-- Thank You 页 第五页 -->
-<section class="page thankyou-page" id="thankyou">
-    <h1 class="thankyou-text">Thank You!</h1>
-</section>
+            <p>
+                This project visualizes these abstract equations by mapping individuals
+                to moving emojis, allowing the mathematical behavior of the model
+                to be observed intuitively.
+            </p>
+
+            <h3>Limitations</h3>
+            <p>
+                The SIR model assumes homogeneous mixing, equal susceptibility,
+                and no births or deaths. It does not account for age structure,
+                spatial clustering, reinfection, or public health interventions.
+                Despite these limitations, it provides a strong conceptual foundation
+                for understanding epidemic dynamics.
+            </p>
+        </section>
+        <div class="scroll-arrow">⬇️</div>
+    </section>
+
+    <!-- 第四页：翻页卡片占满屏幕 -->
+    <section class="page page-cards" id="page4">
+        <div class="flip-card-grid">
+            <div class="flip-card">
+                <div class="flip-inner">
+                    <div class="flip-front">Epidemic Spread</div>
+                    <div class="flip-back">
+                        Epidemic spread describes how infectious diseases propagate
+                        through a population over time. Transmission depends on
+                        contact frequency, proximity, and probability of infection.
+                        Real factors include mobility, social behavior, and environment.
+                    </div>
+                </div>
+            </div>
+            <div class="flip-card">
+                <div class="flip-inner">
+                    <div class="flip-front">Model Types</div>
+                    <div class="flip-back">
+                        Epidemiology uses multiple modeling approaches. SI, SIR, SEIR,
+                        and agent-based models balance simplicity and realism differently.
+                    </div>
+                </div>
+            </div>
+            <div class="flip-card">
+                <div class="flip-inner">
+                    <div class="flip-front">Why SIR?</div>
+                    <div class="flip-back">
+                        The SIR model balances simplicity and explanatory power.
+                        It captures essential epidemic behavior while remaining
+                        mathematically transparent and computationally efficient.
+                    </div>
+                </div>
+            </div>
+            <div class="flip-card">
+                <div class="flip-inner">
+                    <div class="flip-front">Future Improvements</div>
+                    <div class="flip-back">
+                        Future extensions could include vaccination, immunity loss,
+                        age-stratified populations, or network-based contact patterns.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-arrow">⬇️</div>
+    </section>
+
+    <!-- 第五页：Thank You -->
+    <section class="page page-thankyou" id="page5">
+        <h1 class="thankyou-text">Thank You!</h1>
+    </section>
+
+</div>
 
 <script src="script.js"></script>
-<script src="scroll.js"></script>
 </body>
 </html>

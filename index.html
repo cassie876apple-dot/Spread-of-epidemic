@@ -5,47 +5,30 @@
     <title>SIR Epidemic Simulation</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div class="container">
 
-        <h1>🧬 SIR Epidemic Simulation</h1>
-        <p class="subtitle">
-            A simple visual model showing how diseases spread and recover.
-        </p>
+<h1>🦠 SIR Epidemic Simulation</h1>
 
-        <div class="controls">
-            <div class="control">
-                <label>Infection Rate (β)</label>
-                <input type="range" id="beta" min="0" max="1" step="0.01" value="0.3">
-            </div>
+<div class="controls">
+    <label>Infection rate (β)</label>
+    <input type="range" id="beta" min="0" max="1" step="0.01" value="0.3">
 
-            <div class="control">
-                <label>Recovery Rate (γ)</label>
-                <input type="range" id="gamma" min="0" max="1" step="0.01" value="0.1">
-            </div>
+    <label>Recovery rate (γ)</label>
+    <input type="range" id="gamma" min="0" max="1" step="0.01" value="0.1">
 
-            <div class="control">
-                <label>Initial Infected</label>
-                <input type="range" id="initialI" min="1" max="20" step="1" value="3">
-            </div>
+    <label>Initial infected</label>
+    <input type="range" id="initialI" min="1" max="30" step="1" value="5">
 
-            <button id="run">▶ Start Simulation</button>
-        </div>
+    <button id="run">Start Simulation</button>
+</div>
 
-        <div class="visuals">
-            <canvas id="animationCanvas" width="420" height="300"></canvas>
-            <canvas id="chartCanvas" width="420" height="300"></canvas>
-        </div>
+<div class="canvas-wrapper">
+    <canvas id="animationCanvas" width="400" height="300"></canvas>
+    <canvas id="chartCanvas" width="400" height="300"></canvas>
+</div>
 
-        <div class="legend">
-            <span class="s">🧍 Susceptible</span>
-            <span class="i">🤒 Infected</span>
-            <span class="r">😊 Recovered</span>
-        </div>
+<!-- ⚠️ 一定在这里 -->
+<script src="script.js"></script>
 
-    </div>
-
-    <script src="script.js"></script>
 </body>
 </html>

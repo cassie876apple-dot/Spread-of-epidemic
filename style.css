@@ -6,6 +6,23 @@ body {
     margin: 0;
     font-family: "Inter", "Segoe UI", Arial, sans-serif;
     color: #1f2937;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+/* 顶部固定导航 */
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(10px);
+    padding: 16px 24px;
+    font-size: 18px;
+    font-weight: 600;
+    z-index: 999;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 /* 背景 */
@@ -17,40 +34,70 @@ body {
     background-position: center;
     filter: blur(10px) brightness(0.75);
     z-index: -1;
+    transition: background 1s ease;
 }
 
-/* 三栏布局 */
-.layout {
-    display: grid;
-    grid-template-columns: 1fr 720px 1fr;
-    gap: 30px;
-    padding: 40px;
+/* 每页布局 */
+.pages {
+    scroll-snap-type: y mandatory;
 }
 
-/* 标题区 */
-.hero h1,
-.hero .subtitle {
+.pages > section {
+    scroll-snap-align: start;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 60px; /* 避开固定导航 */
+}
+
+/* Hero 页 */
+.hero-page h1 {
+    font-size: 4rem;
+    font-weight: 800;
     color: white;
     text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    margin: 0;
 }
 
-.hero {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.subtitle {
+.hero-page .subtitle {
+    font-size: 1.5rem;
+    color: white;
+    margin-top: 12px;
     opacity: 0.9;
 }
 
-/* 卡片统一 */
+.scroll-arrow {
+    font-size: 2rem;
+    margin-top: 40px;
+    animation: bounce 1.5s infinite;
+    color: white;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(15px); }
+}
+
+/* 第二页图片 */
+.second-page img {
+    width: 400px;
+    margin: 12px 0;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+/* 卡片统一样式 */
 .card {
     background: rgba(255,255,255,0.85);
     backdrop-filter: blur(12px);
     border-radius: 20px;
     padding: 24px;
-    margin-bottom: 24px;
+    margin: 24px 0;
     box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    width: 80%;
+    max-width: 720px;
 }
 
 /* 控制区 */
@@ -64,7 +111,6 @@ body {
     grid-column: span 2;
 }
 
-/* 按钮 */
 button {
     grid-column: span 2;
     padding: 12px;
@@ -79,17 +125,18 @@ button {
 /* Canvas */
 canvas {
     display: block;
-    margin: 0 auto;
+    margin: 20px auto;
     background: white;
     border-radius: 18px;
 }
 
-/* 翻页卡 */
-.side {
-    display: flex;
-    flex-direction: column;
+/* 翻页卡片 */
+.flipcards-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
-    justify-content: center;
+    width: 80%;
+    max-width: 900px;
 }
 
 .flip-card {
@@ -125,4 +172,17 @@ canvas {
     transform: rotateY(180deg);
     font-size: 14px;
     line-height: 1.6;
+}
+
+/* Thank You 页 */
+.thank-you-page h1 {
+    font-size: 4rem;
+    opacity: 0;
+    transform: translateY(100px);
+    transition: all 1s ease-out;
+}
+
+.thank-you-page.show h1 {
+    opacity: 1;
+    transform: translateY(0);
 }

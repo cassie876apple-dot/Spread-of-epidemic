@@ -1,6 +1,3 @@
-<div class="background"></div>
-<div class="layout">
-    
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,16 +7,49 @@
 </head>
 <body>
 
-    <div class="page">
+<div class="background"></div>
 
-        <header>
+<div class="layout">
+
+    <!-- 左侧翻页说明 -->
+    <aside class="side left">
+        <div class="flip-card">
+            <div class="flip-inner">
+                <div class="flip-front">Epidemic Spread</div>
+                <div class="flip-back">
+                    Epidemic spread describes how infectious diseases propagate
+                    through a population over time. Transmission depends on
+                    contact frequency, proximity, and probability of infection.
+                    In real life, this process is influenced by mobility,
+                    social behavior, and environmental conditions.
+                </div>
+            </div>
+        </div>
+
+        <div class="flip-card">
+            <div class="flip-inner">
+                <div class="flip-front">Model Types</div>
+                <div class="flip-back">
+                    Epidemiology uses multiple modeling approaches. SI and SIR
+                    models describe basic infection dynamics, while SEIR adds an
+                    exposed stage. Agent-based models simulate individuals with
+                    unique behaviors but require far more data and computation.
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 中央主内容 -->
+    <main class="middle">
+
+        <header class="hero">
             <h1>SIR Epidemic Simulation</h1>
             <p class="subtitle">
-                An interactive visualization of disease spread using the SIR model
+                An interactive visualization of disease spread using a mathematical model
             </p>
         </header>
 
-        <!-- 控制面板 -->
+        <!-- 控制区 -->
         <section class="card controls">
             <div class="control">
                 <label>Infection rate (β)</label>
@@ -39,126 +69,98 @@
             <button id="run">Start Simulation</button>
         </section>
 
-        <!-- 动画 + 图例 -->
+        <!-- 动画 -->
         <section class="card simulation">
             <div class="simulation-header">
                 <h2>Population Animation</h2>
                 <div class="legend">
-                    <div class="legend-item">
-                        <span class="emoji">🧍</span> Susceptible
-                    </div>
-                    <div class="legend-item">
-                        <span class="emoji">🦠</span> Infected
-                    </div>
-                    <div class="legend-item">
-                        <span class="emoji">🛡️</span> Recovered
-                    </div>
+                    <span>🧍 Susceptible</span>
+                    <span>🦠 Infected</span>
+                    <span>🛡️ Recovered</span>
                 </div>
             </div>
-
             <canvas id="animationCanvas" width="600" height="400"></canvas>
         </section>
 
-        <!-- 折线图 -->
+        <!-- 折线图（只保留一个） -->
         <section class="card">
             <h2>Population Over Time</h2>
             <canvas id="chartCanvas" width="600" height="300"></canvas>
         </section>
 
-        <!-- Explanation（给老师看的） -->
-        <div class="middle">
+        <!-- 详细模型说明 -->
         <section class="card explanation">
-            <h2>Model Explanation</h2>
+            <h2>SIR Model Explanation</h2>
 
             <p>
-                This project uses the <strong>SIR epidemiological model</strong> to simulate how an infectious
-                disease spreads through a closed population.
+                This simulation is based on the classical <strong>SIR epidemiological model</strong>,
+                which divides a closed population into three compartments: Susceptible (S),
+                Infected (I), and Recovered (R).
             </p>
 
             <p>
-                Individuals are divided into three groups:
+                At each time step, the model updates these values using the following equations:
             </p>
 
-            <ul>
-                <li><strong>Susceptible (S)</strong>: healthy individuals who can become infected</li>
-                <li><strong>Infected (I)</strong>: individuals who are currently infected and can spread the disease</li>
-                <li><strong>Recovered (R)</strong>: individuals who have recovered and are no longer infectious</li>
-            </ul>
+            <pre>
+new infections = β × S × I / N
+new recoveries = γ × I
+
+S(t+1) = S(t) − new infections
+I(t+1) = I(t) + new infections − new recoveries
+R(t+1) = R(t) + new recoveries
+            </pre>
 
             <p>
-                The simulation updates these groups over time using infection rate (β) and recovery rate (γ).
-                Each moving emoji represents a person, making the abstract math model more intuitive and visual.
+                Here, β represents the infection rate and γ represents the recovery rate.
+                The total population N is assumed to remain constant.
+            </p>
+
+            <p>
+                This project visualizes these abstract equations by mapping individuals
+                to moving emojis, allowing the mathematical behavior of the model
+                to be observed intuitively.
             </p>
 
             <h3>Limitations</h3>
             <p>
-                This model assumes a closed population, random movement, and equal contact probability.
-                Real-world factors such as age, immunity differences, social networks, and interventions
-                are not included.
+                The SIR model assumes homogeneous mixing, equal susceptibility,
+                and no births or deaths. It does not account for age structure,
+                spatial clustering, reinfection, or public health interventions.
+                Despite these limitations, it provides a strong conceptual foundation
+                for understanding epidemic dynamics.
             </p>
         </section>
 
-        <section class="card">
-            <h2>Population Over Time</h2>
-            <canvas id="chartCanvas" width="600" height="300"></canvas>
-        </section>
-   </div>
+    </main>
 
-    <script src="script.js"></script>
+    <!-- 右侧翻页说明 -->
+    <aside class="side right">
+        <div class="flip-card">
+            <div class="flip-inner">
+                <div class="flip-front">Why SIR?</div>
+                <div class="flip-back">
+                    The SIR model balances simplicity and explanatory power.
+                    It captures essential epidemic behavior while remaining
+                    mathematically transparent and computationally efficient.
+                </div>
+            </div>
+        </div>
+
+        <div class="flip-card">
+            <div class="flip-inner">
+                <div class="flip-front">Future Improvements</div>
+                <div class="flip-back">
+                    Future extensions could include vaccination, immunity loss,
+                    age-stratified populations, or network-based contact patterns
+                    to better reflect real-world epidemics.
+                </div>
+            </div>
+        </div>
+    </aside>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
-
-<div class="explanation">
-    <h2>Legend</h2>
-    <p>🧍 Susceptible (S): Individuals who can be infected</p>
-    <p>🦠 Infected (I): Individuals currently spreading the disease</p>
-    <p>🛡️ Recovered (R): Individuals who have recovered and are immune</p>
-</div>
-
-<div class="side left">
-    <div class="flip-card">
-        <div class="flip-inner">
-            <div class="flip-front">Epidemic Spread</div>
-            <div class="flip-back">
-                Epidemic spread describes how infectious diseases move through
-                a population via contact. Movement, proximity, and probability
-                determine transmission.
-            </div>
-        </div>
-    </div>
-
-    <div class="flip-card">
-        <div class="flip-inner">
-            <div class="flip-front">Model Types</div>
-            <div class="flip-back">
-                Different models exist: SI, SIR, SEIR, agent-based models, etc.
-                Each balances realism and simplicity differently.
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="side right">
-    <div class="flip-card">
-        <div class="flip-inner">
-            <div class="flip-front">Why SIR</div>
-            <div class="flip-back">
-                The SIR model captures core epidemic dynamics using minimal
-                assumptions, making it ideal for visualization and learning.
-            </div>
-        </div>
-    </div>
-
-    <div class="flip-card">
-        <div class="flip-inner">
-            <div class="flip-front">Future Improvements</div>
-            <div class="flip-back">
-                Future versions could include age groups, immunity loss,
-                vaccination, or network-based movement.
-            </div>
-        </div>
-    </div>
-</div>
-
-
-</div>

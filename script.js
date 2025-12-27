@@ -1,3 +1,7 @@
+const betaInput = document.getElementById("beta");
+const gammaInput = document.getElementById("gamma");
+const initialIInput = document.getElementById("initialI");
+
 const animationCanvas = document.getElementById("animationCanvas");
 const ctx = animationCanvas.getContext("2d");
 
@@ -7,9 +11,9 @@ const chartCtx = chartCanvas.getContext("2d");
 const runBtn = document.getElementById("run");
 
 const EMOJI = {
-    S: "🙂",   // 易感
-    I: "🤒",   // 感染
-    R: "😷"    // 康复
+    S: "🧍",   // 易感：人形（直立）
+    I: "🦠",   // 感染：病毒（放射形）
+    R: "🛡️"    // 康复：盾牌（几何形）
 };
 
 const N = 40;
@@ -53,8 +57,8 @@ runBtn.onclick = () => {
         points.push({
             x: Math.random() * animationCanvas.width,
             y: Math.random() * animationCanvas.height,
-            vx: (Math.random() - 0.5) * 4,
-            vy: (Math.random() - 0.5) * 4,
+            vx: (Math.random() - 0.5) * 7,
+            vy: (Math.random() - 0.5) * 7,
             state: i < initialI ? "I" : "S"
         });
     }
@@ -98,7 +102,7 @@ runBtn.onclick = () => {
 
         // 绘制 emoji
         for (let p of points) {
-            ctx.font = "28px serif";
+            ctx.font = "32px serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(EMOJI[p.state], p.x, p.y);

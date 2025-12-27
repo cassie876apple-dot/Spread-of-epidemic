@@ -1,31 +1,31 @@
-const animationCanvas = document.getElementById("animationCanvas");
-const ctx = animationCanvas.getContext("2d");
+const canvas = document.getElementById("animationCanvas");
+const ctx = canvas.getContext("2d");
 
 const chartCanvas = document.getElementById("chartCanvas");
 const chartCtx = chartCanvas.getContext("2d");
 
 const runBtn = document.getElementById("run");
 
-const N = 30;
-const DAYS = 60;
+runBtn.addEventListener("click", () => {
 
-runBtn.onclick = () => {
-    ctx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
 
-    const beta = parseFloat(betaInput.value);
-    const gamma = parseFloat(gammaInput.value);
-    const initialI = parseInt(initialIInput.value);
+    const beta = parseFloat(document.getElementById("beta").value);
+    const gamma = parseFloat(document.getElementById("gamma").value);
+    const initialI = parseInt(document.getElementById("initialI").value);
 
+    const N = 40;
     let S = N - initialI;
     let I = initialI;
     let R = 0;
 
-    let S_arr = [S];
-    let I_arr = [I];
-    let R_arr = [R];
+    const days = 40;
+    const S_arr = [S];
+    const I_arr = [I];
+    const R_arr = [R];
 
-    for (let t = 1; t < DAYS; t++) {
+    for (let t = 1; t < days; t++) {
         const newI = Math.min(beta * S * I / N, S);
         const newR = Math.min(gamma * I, I);
 
@@ -38,60 +38,62 @@ runBtn.onclick = () => {
         R_arr.push(R);
     }
 
+    // 初始化点（emoji）
     let people = [];
     for (let i = 0; i < N; i++) {
         people.push({
-            x: Math.random() * animationCanvas.width,
-            y: Math.random() * animationCanvas.height,
-            state: i < initialI ? "I" : "S"
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            state: i < initialI ? "😷" : "🙂"
         });
     }
 
     let t = 0;
     const timer = setInterval(() => {
-        ctx.clearRect(0, 0, animationCanvas.width, animationCanvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        people.forEach(p => {
+            p.x += (Math.random() - 0.5) * 2;
+            p.y += (Math.random() - 0.5) * 2;
+
+            ctx.font = "16px serif";
+            ctx.fillText(p.state, p.x, p.y);
+        });
 
         const curI = Math.round(I_arr[t]);
         const curR = Math.round(R_arr[t]);
 
-        people.forEach((p, i) => {
-            if (i < curI) p.state = "I";
-            else if (i < curI + curR) p.state = "R";
-            else p.state = "S";
+        for (let i = 0; i < N; i++) {
+            if (i < curI) people[i].state = "😷";
+            else if (i < curI + curR) people[i].state = "😃";
+            else people[i].state = "🙂";
+        }
 
-            p.x += (Math.random() - 0.5) * 2;
-            p.y += (Math.random() - 0.5) * 2;
+        drawChart(t, S_arr, I_arr, R_arr);
 
-            const emoji = p.state === "S" ? "🧍" : p.state === "I" ? "🤒" : "😊";
-            ctx.font = "20px serif";
-            ctx.fillText(emoji, p.x, p.y);
-        });
-
-        drawChart(S_arr, I_arr, R_arr, t);
         t++;
+        if (t >= days) clearInterval(timer);
+    }, 200);
+});
 
-        if (t >= DAYS) clearInterval(timer);
-    }, 150);
-};
-
-function drawChart(S, I, R, t) {
+function drawChart(t, S, I, R) {
     chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-    const h = chartCanvas.height;
-    const w = chartCanvas.width;
+    const max = Math.max(...S, ...I, ...R);
 
-    function line(arr, color) {
-        chartCtx.strokeStyle = color;
-        chartCtx.beginPath();
-        arr.forEach((v, i) => {
-            if (i > t) return;
-            const x = i / DAYS * w;
-            const y = h - (v / N) * h;
-            i === 0 ? chartCtx.moveTo(x, y) : chartCtx.lineTo(x, y);
-        });
-        chartCtx.stroke();
-    }
+    drawLine(S, "blue", t, max);
+    drawLine(I, "red", t, max);
+    drawLine(R, "green", t, max);
+}
 
-    line(S, "#4f7cff");
-    line(I, "#ff5c5c");
-    line(R, "#4caf50");
+function drawLine(arr, color, t, max) {
+    chartCtx.strokeStyle = color;
+    chartCtx.beginPath();
+    arr.forEach((v, i) => {
+        if (i > t) return;
+        const x = (i / arr.length) * chartCanvas.width;
+        const y = chartCanvas.height - (v / max) * chartCanvas.height;
+        if (i === 0) chartCtx.moveTo(x, y);
+        else chartCtx.lineTo(x, y);
+    });
+    chartCtx.stroke();
 }

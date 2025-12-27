@@ -1,3 +1,6 @@
+<div class="background"></div>
+<div class="layout">
+    
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,6 +66,7 @@
         </section>
 
         <!-- Explanation（给老师看的） -->
+        <div class="middle">
         <section class="card explanation">
             <h2>Model Explanation</h2>
 
@@ -94,7 +98,11 @@
             </p>
         </section>
 
-    </div>
+        <section class="card">
+            <h2>Population Over Time</h2>
+            <canvas id="chartCanvas" width="600" height="300"></canvas>
+        </section>
+   </div>
 
     <script src="script.js"></script>
 </body>
@@ -105,4 +113,52 @@
     <p>🧍 Susceptible (S): Individuals who can be infected</p>
     <p>🦠 Infected (I): Individuals currently spreading the disease</p>
     <p>🛡️ Recovered (R): Individuals who have recovered and are immune</p>
+</div>
+
+<div class="side left">
+    <div class="flip-card">
+        <div class="flip-inner">
+            <div class="flip-front">Epidemic Spread</div>
+            <div class="flip-back">
+                Epidemic spread describes how infectious diseases move through
+                a population via contact. Movement, proximity, and probability
+                determine transmission.
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-inner">
+            <div class="flip-front">Model Types</div>
+            <div class="flip-back">
+                Different models exist: SI, SIR, SEIR, agent-based models, etc.
+                Each balances realism and simplicity differently.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="side right">
+    <div class="flip-card">
+        <div class="flip-inner">
+            <div class="flip-front">Why SIR</div>
+            <div class="flip-back">
+                The SIR model captures core epidemic dynamics using minimal
+                assumptions, making it ideal for visualization and learning.
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-inner">
+            <div class="flip-front">Future Improvements</div>
+            <div class="flip-back">
+                Future versions could include age groups, immunity loss,
+                vaccination, or network-based movement.
+            </div>
+        </div>
+    </div>
+</div>
+
+
 </div>

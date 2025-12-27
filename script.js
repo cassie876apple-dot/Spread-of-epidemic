@@ -1,143 +1,124 @@
-const animCanvas = document.getElementById('animationCanvas');
-const actx = animCanvas.getContext('2d');
+const dotCanvas = document.getElementById("dotCanvas");
+const dotCtx = dotCanvas.getContext("2d");
 
-const chartCanvas = document.getElementById('chartCanvas');
-const cctx = chartCanvas.getContext('2d');
+const lineCanvas = document.getElementById("lineCanvas");
+const lineCtx = lineCanvas.getContext("2d");
 
-const runBtn = document.getElementById('run');
-const timeline = document.getElementById('timeline');
-const timelineContainer = document.getElementById('timelineContainer');
+const startBtn = document.getElementById("startBtn");
 
-const N = 50;
-const days = 60;
+startBtn.onclick = startSimulation;
 
-let S_arr = [], I_arr = [], R_arr = [];
-let points = [];
-let animationInterval = null;
+function startSimulation() {
+    const beta = parseFloat(document.getElementById("beta").value);
+    const gamma = parseFloat(document.getElementById("gamma").value);
+    const initialI = parseInt(document.getElementById("initialI").value);
 
-// ===== 工具函数 =====
-function drawLegend() {
-    const legend = [
-        { color: 'blue', text: 'Susceptible' },
-        { color: 'red', text: 'Infected' },
-        { color: 'green', text: 'Recovered' }
-    ];
-    legend.forEach((l, i) => {
-        actx.fillStyle = l.color;
-        actx.beginPath();
-        actx.arc(15, 20 + i * 20, 6, 0, Math.PI * 2);
-        actx.fill();
-        actx.fillStyle = 'black';
-        actx.fillText(l.text, 30, 25 + i * 20);
-    });
-}
+    const N = 30;
+    let S = N - initialI;
+    let I = initialI;
+    let R = 0;
 
-function drawPoints() {
-    actx.clearRect(0, 0, animCanvas.width, animCanvas.height);
-    drawLegend();
-    points.forEach(p => {
-        actx.fillStyle =
-            p.status === 'S' ? 'blue' :
-            p.status === 'I' ? 'red' : 'green';
-        actx.beginPath();
-        actx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-        actx.fill();
-    });
-}
+    let S_arr = [S];
+    let I_arr = [I];
+    let R_arr = [R];
 
-function drawChart(t) {
-    cctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-    const max = N;
-
-    function line(arr, color) {
-        cctx.strokeStyle = color;
-        cctx.beginPath();
-        arr.forEach((v, i) => {
-            if (i > t) return;
-            const x = i / days * chartCanvas.width;
-            const y = chartCanvas.height - (v / max) * chartCanvas.height;
-            if (i === 0) cctx.moveTo(x, y);
-            else cctx.lineTo(x, y);
+    // 创建点
+    let dots = [];
+    for (let i = 0; i < N; i++) {
+        dots.push({
+            x: Math.random() * dotCanvas.width,
+            y: Math.random() * dotCanvas.height,
+            state: i < initialI ? "I" : "S"
         });
-        cctx.stroke();
     }
 
-    line(S_arr, 'blue');
-    line(I_arr, 'red');
-    line(R_arr, 'green');
-}
+    let day = 0;
 
-// ===== SIR 计算 =====
-function computeSIR(beta, gamma, initialI) {
-    let S = N - initialI, I = initialI, R = 0;
-    S_arr = [S]; I_arr = [I]; R_arr = [R];
+    const interval = setInterval(() => {
+        day++;
 
-    for (let t = 1; t < days; t++) {
-        const newI = Math.min(beta * S * I / N, S);
-        const newR = Math.min(gamma * I, I);
-        S -= newI;
-        I += newI - newR;
-        R += newR;
+        // SIR 计算
+        const newInfected = Math.min(beta * S * I / N, S);
+        const newRecovered = Math.min(gamma * I, I);
+
+        S -= newInfected;
+        I += newInfected - newRecovered;
+        R += newRecovered;
+
         S_arr.push(S);
         I_arr.push(I);
         R_arr.push(R);
-    }
+
+        // 更新点状态
+        dots.forEach((d, index) => {
+            if (index < I) d.state = "I";
+            else if (index < I + R) d.state = "R";
+            else d.state = "S";
+        });
+
+        drawDots(dots);
+        drawLines(S_arr, I_arr, R_arr);
+
+        if (day > 60) clearInterval(interval);
+    }, 200);
 }
 
-// ===== 主逻辑 =====
-runBtn.onclick = () => {
-    clearInterval(animationInterval);
-    timelineContainer.style.display = 'none';
+function drawDots(dots) {
+    dotCtx.clearRect(0, 0, dotCanvas.width, dotCanvas.height);
 
-    const beta = +betaInput.value;
-    const gamma = +gammaInput.value;
-    const initialI = +initialIInput.value;
+    dots.forEach(d => {
+        d.x += (Math.random() - 0.5) * 2;
+        d.y += (Math.random() - 0.5) * 2;
 
-    computeSIR(beta, gamma, initialI);
+        if (d.state === "S") dotCtx.fillStyle = "blue";
+        if (d.state === "I") dotCtx.fillStyle = "red";
+        if (d.state === "R") dotCtx.fillStyle = "green";
 
-    // 初始化点
-    points = [];
-    for (let i = 0; i < N; i++) {
-        points.push({
-            x: Math.random() * animCanvas.width,
-            y: Math.random() * animCanvas.height,
-            status: i < initialI ? 'I' : 'S'
+        dotCtx.beginPath();
+        dotCtx.arc(d.x, d.y, 5, 0, Math.PI * 2);
+        dotCtx.fill();
+    });
+
+    // 图例
+    drawLegend();
+}
+
+function drawLegend() {
+    const legend = [
+        { color: "blue", text: "Susceptible" },
+        { color: "red", text: "Infected" },
+        { color: "green", text: "Recovered" }
+    ];
+
+    legend.forEach((l, i) => {
+        dotCtx.fillStyle = l.color;
+        dotCtx.beginPath();
+        dotCtx.arc(15, 20 + i * 20, 5, 0, Math.PI * 2);
+        dotCtx.fill();
+
+        dotCtx.fillStyle = "black";
+        dotCtx.fillText(l.text, 30, 25 + i * 20);
+    });
+}
+
+function drawLines(S, I, R) {
+    lineCtx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
+
+    const max = 30;
+
+    function draw(arr, color) {
+        lineCtx.strokeStyle = color;
+        lineCtx.beginPath();
+        arr.forEach((v, i) => {
+            const x = i * 8;
+            const y = lineCanvas.height - (v / max) * lineCanvas.height;
+            if (i === 0) lineCtx.moveTo(x, y);
+            else lineCtx.lineTo(x, y);
         });
+        lineCtx.stroke();
     }
 
-    let t = 0;
-    animationInterval = setInterval(() => {
-        // 更新状态
-        points.forEach((p, i) => {
-            if (i < Math.round(I_arr[t])) p.status = 'I';
-            else if (i < Math.round(I_arr[t] + R_arr[t])) p.status = 'R';
-            else p.status = 'S';
-
-            p.x += (Math.random() - 0.5) * 2;
-            p.y += (Math.random() - 0.5) * 2;
-        });
-
-        drawPoints();
-        drawChart(t);
-
-        t++;
-        if (t >= days) {
-            clearInterval(animationInterval);
-            timeline.max = days - 1;
-            timeline.value = days - 1;
-            timelineContainer.style.display = 'block';
-        }
-    }, 200);
-};
-
-// ===== 时间轴回看 =====
-timeline.oninput = () => {
-    const t = +timeline.value;
-    points.forEach((p, i) => {
-        if (i < Math.round(I_arr[t])) p.status = 'I';
-        else if (i < Math.round(I_arr[t] + R_arr[t])) p.status = 'R';
-        else p.status = 'S';
-    });
-    drawPoints();
-    drawChart(t);
-};
+    draw(S, "blue");
+    draw(I, "red");
+    draw(R, "green");
+}

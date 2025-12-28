@@ -43,18 +43,18 @@ body {
 
 /* Hero */
 .hero h1 {
-    font-family: 'Georgia', serif;
+    font-family: "BBH Bartle", 'Georgia', serif;
     font-size: 72px;
-    font-weight: 800;
+    font-weight: normal;
     text-align: center;
     margin: 0;
-    line-height: 1.1;
 
+    /* 关键：高级渐变文字 */
     background: linear-gradient(
         180deg,
-        #ffffff 0%,
+        #eef2ff 0%,
         #c7d2fe 50%,
-        #6366f1 100%
+        #a5b4fc 100%
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -63,11 +63,14 @@ body {
 }
 
 .hero .subtitle {
-    font-size: 20px;
-    margin-top: 16px;
-    color: #e5e7eb;
-    letter-spacing: 0.04em;
+    font-family: "BBH Bartle", "Inter", sans-serif;
+    font-size: 22px;
+    margin-top: 14px;
+
+    color: #e0e7ff; /* 比标题浅，但不抢 */
+    opacity: 0.9;
 }
+
 
 
 /* Card */

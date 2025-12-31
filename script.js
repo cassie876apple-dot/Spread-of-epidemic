@@ -184,9 +184,13 @@ document.querySelectorAll('.scroll-arrow').forEach((arrow, i) => {
 /* ---------- Thank You ---------- */
 const thankYou = document.querySelector('.thankyou');
 window.addEventListener('scroll', () => {
-    if (!thankYou) return;
-    const rect = thankYou.getBoundingClientRect();
-    if (rect.top < window.innerHeight * 0.75) {
-        thankYou.classList.add('visible');
-    }
+    if (thankYou) {
+    window.addEventListener('scroll', () => {
+        const rect = thankYou.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.8) {
+            thankYou.classList.add('visible');
+        }
+    });
+}
+
 });
